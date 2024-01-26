@@ -6,7 +6,7 @@ from typing import Mapping, Any
 import json
 
 
-@dbt_assets(manifest=dbt_manifest_path, exclude="fct_incremental_sample")
+@dbt_assets(manifest=dbt_manifest_path, exclude="fct_reviews")
 def dbtlearn_dbt_assets(context: AssetExecutionContext, dbt: DbtCliResource):
     yield from dbt.cli(["build"], context=context).stream()
 
@@ -14,7 +14,7 @@ def dbtlearn_dbt_assets(context: AssetExecutionContext, dbt: DbtCliResource):
 # many dbt assets use an incremental approach to avoid
 # re-processing all data on each run
 # this approach can be modelled in dagster using partitions
-daily_partitions = DailyPartitionsDefinition(start_date="2024-01-24")
+daily_partitions = DailyPartitionsDefinition(start_date="2020-01-01")
 
 class CustomDagsterDbtTranslator(DagsterDbtTranslator):
 
@@ -27,7 +27,7 @@ class CustomDagsterDbtTranslator(DagsterDbtTranslator):
 
 
 @dbt_assets(manifest=dbt_manifest_path, 
-            select="fct_incremental_sample", 
+            select="fct_reviews", 
             partitions_def=daily_partitions,
             dagster_dbt_translator=CustomDagsterDbtTranslator())
 def dbtlearn_partitioned_dbt_assets(context: AssetExecutionContext, dbt: DbtCliResource):
